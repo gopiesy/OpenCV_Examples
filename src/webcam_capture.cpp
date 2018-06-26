@@ -3,6 +3,8 @@
 #include<stdio.h>
 #include<iostream>
 
+#define JETSON_TX2	1
+
 using namespace cv;
 
 Mat img,gray,res;
@@ -13,7 +15,16 @@ int opt=0;
 char name[20];
 int main() 
 {
+#ifdef JETSON_TX2
+    VideoCapture cap=VideoCapture("nvcamerasrc ! video/x-raw(memory:NVMM), width=(int)1280, height=(int)720, format=(string)I420, framerate=(fraction)30/1 ! nvvidconv ! video/x-raw, format=(string)I420 ! videoconvert ! video/x-raw ! appsink");
+#else
     VideoCapture cap=VideoCapture(0);
+#endif
+    if(!cap.isOpened()){  // check if we succeeded
+	std::cout << "\nERROR: Failed to VideoCapture\n";
+        return -1;
+    }
+
     cap>>img;
     cv::namedWindow("Webcam PhotoCapture");
     createTrackbar(str,"Webcam PhotoCapture",&opt,max_opt,NULL);
